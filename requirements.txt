@@ -1,0 +1,15 @@
+openai
+anthropic
+chromadb
+streamlit
+python-dotenv
+beautifulsoup4
+requests
+pandas
+markdown
+tiktoken
+sentence-transformers
+pydantic
+torch
+transformers
+accelerate
