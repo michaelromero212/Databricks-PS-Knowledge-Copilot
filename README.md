@@ -2,7 +2,13 @@
 
 An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) teams. This tool ingests technical documentation and provides instant, accurate answers to complex consulting questions using Retrieval-Augmented Generation (RAG).
 
-![App Screenshot](file:///Users/michaelromero/.gemini/antigravity/brain/e7ee4a02-505e-458b-aa0f-0564b1cff559/photon_query_result_1763834833229.png)
+````carousel
+![Photon Query](docs/images/photon_query.png)
+<!-- slide -->
+![Unity Catalog Query](docs/images/unity_catalog_query.png)
+<!-- slide -->
+![Auto Loader Query](docs/images/auto_loader_query.png)
+````
 
 ## 🚀 Features
 
