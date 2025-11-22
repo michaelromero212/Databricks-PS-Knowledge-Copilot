@@ -6,3 +6,4 @@ __pycache__/
 data/docs_raw/
 data/docs_clean/
 output/
+data/chroma_db/
