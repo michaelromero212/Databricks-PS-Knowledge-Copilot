@@ -22,7 +22,7 @@ def main():
     apply_custom_css()
     sidebar_info()
 
-    st.title("🧠 Databricks PS Knowledge Copilot")
+    st.title("Databricks PS Knowledge Copilot")
     st.markdown("Ask questions about Databricks best practices, architecture, and optimization.")
 
     # Query Input
@@ -45,13 +45,17 @@ def main():
 
             st.markdown("### Sources")
             if docs:
-                for doc in docs:
+                for idx, doc in enumerate(docs, 1):
+                    # Escape HTML in content to prevent XSS
+                    source_name = doc['metadata']['source']
+                    excerpt = doc['content'][:200].replace('<', '&lt;').replace('>', '&gt;')
+                    
                     with st.container():
                         st.markdown(f"""
-                        <div class="source-card">
-                            <b>Source:</b> {doc['metadata']['source']}<br>
-                            <small>{doc['content'][:200]}...</small>
-                        </div>
+                        <article class="source-card" role="article" aria-label="Source document {idx} of {len(docs)}">
+                            <h4 class="source-title">Source: {source_name}</h4>
+                            <p class="source-excerpt">{excerpt}...</p>
+                        </article>
                         """, unsafe_allow_html=True)
             else:
                 st.info("No sources cited.")
