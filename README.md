@@ -42,11 +42,17 @@ An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) t
     ```bash
     pip install -r requirements.txt
     ```
+    
+    > **Note**: This will install all required packages including `chromadb`, `streamlit`, `transformers`, and other dependencies. The installation may take a few minutes.
 
 4.  **Run the App**:
     ```bash
+    # Make sure your virtual environment is activated first
+    source venv/bin/activate
     streamlit run app/ui/streamlit_app.py
     ```
+    
+    The app will open automatically in your browser at `http://localhost:8501`.
 
 ## 👥 How Databricks PS Consultants Use This
 

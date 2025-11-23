@@ -23,7 +23,7 @@ def main():
     sidebar_info()
 
     st.title("Databricks PS Knowledge Copilot")
-    st.markdown("Ask questions about Databricks best practices, architecture, and optimization.")
+    st.markdown('<p class="subtitle">Ask questions about Databricks best practices, architecture, and optimization.</p>', unsafe_allow_html=True)
 
     # Query Input
     query = st.text_input("Enter your question:", placeholder="e.g., How do I optimize MERGE performance?")

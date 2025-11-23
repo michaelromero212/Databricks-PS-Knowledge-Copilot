@@ -164,6 +164,16 @@ def apply_custom_css():
             margin-bottom: var(--spacing-md);
         }
         
+        /* Subtitle - appears below main title */
+        .subtitle {
+            font-size: var(--font-size-lg);
+            line-height: var(--line-height-normal);
+            color: var(--color-text-secondary);
+            margin-top: calc(var(--spacing-sm) * -1);
+            margin-bottom: var(--spacing-xl);
+            font-weight: var(--font-weight-normal);
+        }
+        
         /* ============================================
            INPUT FIELDS
            ============================================ */
