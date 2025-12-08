@@ -32,8 +32,16 @@ def test_ingestion_and_retrieval():
     print("Testing Vector Store (Chroma)...")
     chroma = ChromaClient(persistence_path="./data/test_chroma_db")
     texts = [doc['content'] for doc in documents]
-    metadatas = [{"source": doc['source']} for doc in documents]
-    ids = [doc['source'] for doc in documents]
+    metadatas = [doc.get('metadata', {"source": doc['source']}) for doc in documents]
+    
+    # Generate unique IDs for chunked documents
+    ids = []
+    for doc in documents:
+        metadata = doc.get('metadata', {})
+        chunk_idx = metadata.get('chunk_index', 0)
+        source = doc['source']
+        ids.append(f"{source}_chunk_{chunk_idx}")
+    
     embeddings = embedder.generate_embeddings(texts)
     
     chroma.upsert_documents(texts, metadatas, ids, embeddings)

@@ -67,20 +67,27 @@ def main():
         if st.button("Re-ingest Knowledge Base"):
             with st.spinner("Ingesting documents..."):
                 loader = DocumentLoader("./data/example_inputs")
-                documents = loader.load_documents()
+                documents = loader.load_documents()  # Now returns chunked docs
                 
                 if documents:
-                    # Prepare for Chroma
+                    # Prepare for Chroma - handle chunked documents
                     texts = [doc['content'] for doc in documents]
-                    metadatas = [{"source": doc['source']} for doc in documents]
-                    ids = [doc['source'] for doc in documents]
+                    metadatas = [doc.get('metadata', {"source": doc['source']}) for doc in documents]
+                    
+                    # Create unique IDs for each chunk
+                    ids = []
+                    for doc in documents:
+                        metadata = doc.get('metadata', {})
+                        chunk_idx = metadata.get('chunk_index', 0)
+                        source = doc['source']
+                        ids.append(f"{source}_chunk_{chunk_idx}")
                     
                     embedder = Embedder()
                     embeddings = embedder.generate_embeddings(texts)
                     
                     chroma = ChromaClient()
                     chroma.upsert_documents(texts, metadatas, ids, embeddings)
-                    st.success(f"Ingested {len(documents)} documents!")
+                    st.success(f"Ingested {len(documents)} chunks from knowledge base!")
                 else:
                     st.warning("No documents found in data/example_inputs")
 

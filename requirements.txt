@@ -13,3 +13,6 @@ pydantic
 torch
 transformers
 accelerate
+fastapi
+uvicorn[standard]
+sse-starlette

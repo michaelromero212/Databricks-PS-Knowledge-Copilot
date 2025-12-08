@@ -1,9 +1,38 @@
+# Python
 venv/
-.env
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Environment
+.env
+
+# OS
 .DS_Store
+Thumbs.db
+
+# ChromaDB (local vector stores)
+data/chroma_db/
+data/*_chroma_db/
+
+# Processed data
 data/docs_raw/
 data/docs_clean/
+
+# Output/logs
 output/
-data/chroma_db/
+
+# Node.js (React frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
