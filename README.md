@@ -2,10 +2,32 @@
 
 An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) teams. This tool ingests technical documentation and provides instant, accurate answers to complex consulting questions using Retrieval-Augmented Generation (RAG).
 
+## 📸 Screenshots
+
+### Main Interface
+The clean, modern interface allows consultants to quickly ask questions or select from common example queries. The header shows real-time API connection status.
+
+![Main Interface](docs/images/main_interface.png)
+
+---
+
+### Photon Engine Query
+Ask about when to recommend Photon for optimal performance. The answer includes detailed recommendations and cites source documents.
+
 ![Photon Query](docs/images/photon_query.png)
-<br>
+
+---
+
+### Unity Catalog Best Practices
+Get authoritative guidance on Unity Catalog architecture, namespace structure, and governance patterns for enterprise deployments.
+
 ![Unity Catalog Query](docs/images/unity_catalog_query.png)
-<br>
+
+---
+
+### Auto Loader Schema Evolution
+Understand how Auto Loader handles schema changes dynamically, with specific configuration recommendations from the knowledge base.
+
 ![Auto Loader Query](docs/images/auto_loader_query.png)
 
 ## 🚀 Features
@@ -13,16 +35,17 @@ An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) t
 -   **RAG Architecture**: Retrieves relevant context from ingested docs before answering.
 -   **Local AI**: Uses a free, local Hugging Face model (`LaMini-Flan-T5`) for privacy and cost-efficiency.
 -   **Vector Search**: Powered by ChromaDB (local) or Databricks Vector Search (cloud).
--   **Clean UI**: Minimalist Streamlit interface designed for quick lookups.
--   **Source Citations**: Every answer includes references to the source documents.
+-   **Modern React UI**: Clean, responsive interface with real-time status indicators and example queries.
+-   **FastAPI Backend**: High-performance async API with automatic documentation.
+-   **Source Citations**: Every answer includes references to the source documents with relevance scores.
 
 ## 🛠️ Tech Stack
 
--   **Language**: Python 3.11+
--   **UI**: Streamlit
+-   **Backend**: Python 3.11+ with FastAPI
+-   **Frontend**: React 18 + Vite
 -   **LLM**: Hugging Face (`MBZUAI/LaMini-Flan-T5-248M`)
 -   **Vector Store**: ChromaDB
--   **Ingestion**: BeautifulSoup4, LangChain (implied via custom loader)
+-   **Embeddings**: Sentence Transformers (`all-MiniLM-L6-v2`)
 
 ## 📦 Setup
 
@@ -32,27 +55,35 @@ An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) t
     cd Databricks-PS-Knowledge-Copilot
     ```
 
-2.  **Create Virtual Environment**:
+2.  **Create Virtual Environment & Install Backend Dependencies**:
     ```bash
     python3 -m venv venv
     source venv/bin/activate
-    ```
-
-3.  **Install Dependencies**:
-    ```bash
     pip install -r requirements.txt
     ```
-    
-    > **Note**: This will install all required packages including `chromadb`, `streamlit`, `transformers`, and other dependencies. The installation may take a few minutes.
 
-4.  **Run the App**:
+3.  **Install Frontend Dependencies**:
     ```bash
-    # Make sure your virtual environment is activated first
+    cd frontend
+    npm install
+    cd ..
+    ```
+
+4.  **Run the Backend** (Terminal 1):
+    ```bash
     source venv/bin/activate
-    streamlit run app/ui/streamlit_app.py
+    uvicorn app.api.main:app --reload --port 8000
     ```
     
-    The app will open automatically in your browser at `http://localhost:8501`.
+    The API will be available at `http://localhost:8000` with docs at `http://localhost:8000/api/docs`.
+
+5.  **Run the Frontend** (Terminal 2):
+    ```bash
+    cd frontend
+    npm run dev
+    ```
+    
+    The app will open at `http://localhost:5173`.
 
 ## 👥 How Databricks PS Consultants Use This
 
@@ -80,6 +111,12 @@ This tool is designed to reduce "tribal knowledge" loss and speed up delivery.
 
 To add new knowledge:
 1.  Place `.md`, `.txt`, or `.ipynb` files in `data/example_inputs/`.
-2.  Open the app sidebar.
-3.  Click **"Re-ingest Knowledge Base"**.
-4.  The system chunks, embeds, and indexes the new content instantly.
+2.  Use the API endpoint to trigger ingestion:
+    ```bash
+    curl -X POST http://localhost:8000/api/ingest \
+      -H "Content-Type: application/json" \
+      -d '{"directory": "data/example_inputs"}'
+    ```
+3.  The system automatically chunks, embeds, and indexes the new content.
+
+> **Tip**: Check `http://localhost:8000/api/stats` to see the current document count in the knowledge base.
