@@ -26,7 +26,7 @@ from app.api.models import (
     QueryRequest, QueryResponse, SourceDocument,
     IngestRequest, IngestResponse,
     HealthResponse, ComponentStatus,
-    LLMProvider
+    LLMProvider, AnalysisRequest, AnalysisResponse, AIStatusResponse
 )
 from app.rag.retriever import Retriever
 from app.rag.llm_connector import LLMConnector
@@ -170,8 +170,16 @@ async def query_knowledge_base(request: QueryRequest):
         if docs:
             llm = get_llm(request.provider.value)
             answer = llm.generate_answer(request.query, docs)
+            
+            # Generate follow-up questions
+            try:
+                follow_up_questions = llm.generate_follow_up_questions(request.query, answer)
+            except Exception as e:
+                print(f"Error generating follow-up questions: {e}")
+                follow_up_questions = []
         else:
             answer = "No relevant documents found in the knowledge base. Please try rephrasing your question or ensure documents have been ingested."
+            follow_up_questions = []
         
         # 3. Format sources
         sources = []
@@ -191,7 +199,8 @@ async def query_knowledge_base(request: QueryRequest):
             sources=sources,
             query=request.query,
             provider=request.provider,
-            processing_time_ms=round(processing_time, 2)
+            processing_time_ms=round(processing_time, 2),
+            follow_up_questions=follow_up_questions if follow_up_questions else None
         )
         
     except Exception as e:
@@ -285,6 +294,68 @@ async def get_stats():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/analyze", response_model=AnalysisResponse, tags=["AI"])
+async def analyze_document(request: AnalysisRequest):
+    """
+    Analyze a document using AI to generate a summary, tags, and complexity rating.
+    
+    This endpoint:
+    1. Takes text input
+    2. Uses the specified LLM provider to analyze the content
+    3. Returns summary, tags, and complexity assessment
+    """
+    start_time = time.time()
+    
+    try:
+        llm = get_llm(request.provider.value)
+        analysis = llm.analyze_document(request.text)
+        
+        processing_time = (time.time() - start_time) * 1000
+        
+        return AnalysisResponse(
+            summary=analysis.get("summary", "Analysis unavailable"),
+            tags=analysis.get("tags", []),
+            complexity=analysis.get("complexity", "intermediate"),
+            processing_time_ms=round(processing_time, 2)
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+@app.get("/api/ai-status", response_model=AIStatusResponse, tags=["AI"])
+async def get_ai_status(provider: str = "huggingface_api"):
+    """
+    Check the connection status of an AI provider.
+    
+    This endpoint tests the connection to the specified LLM provider
+    and returns the status along with model information.
+    """
+    try:
+        # Validate provider
+        if provider not in LLMConnector.get_available_providers():
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid provider. Available providers: {LLMConnector.get_available_providers()}"
+            )
+        
+        llm = get_llm(provider)
+        connection_status = llm.check_connection()
+        
+        # Map to enum
+        provider_enum = LLMProvider(provider)
+        
+        return AIStatusResponse(
+            provider=provider_enum,
+            status=connection_status.get("status", "disconnected"),
+            model=connection_status.get("model"),
+            details=connection_status.get("details")
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Status check failed: {str(e)}")
 
 
 # Root redirect to docs

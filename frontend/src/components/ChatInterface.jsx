@@ -3,9 +3,9 @@ import { useState } from 'react'
 /**
  * Chat Interface Component
  * 
- * Provides the query input form with loading and error states
+ * Provides the query input form with loading, error states, and follow-up questions
  */
-function ChatInterface({ onQuery, isLoading, error }) {
+function ChatInterface({ onQuery, isLoading, error, followUpQuestions }) {
     const [inputValue, setInputValue] = useState('')
 
     const handleSubmit = (e) => {
@@ -20,6 +20,11 @@ function ChatInterface({ onQuery, isLoading, error }) {
             e.preventDefault()
             handleSubmit(e)
         }
+    }
+
+    const handleFollowUpClick = (question) => {
+        setInputValue(question)
+        onQuery(question)
     }
 
     return (
@@ -66,6 +71,54 @@ function ChatInterface({ onQuery, isLoading, error }) {
                         <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                     {error}
+                </div>
+            )}
+
+            {followUpQuestions && followUpQuestions.length > 0 && !isLoading && (
+                <div style={{ marginTop: '1.5rem' }}>
+                    <h3 style={{
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        marginBottom: '0.75rem'
+                    }}>
+                        💡 Follow-up Questions
+                    </h3>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem'
+                    }}>
+                        {followUpQuestions.map((question, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleFollowUpClick(question)}
+                                style={{
+                                    padding: '0.75rem 1rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    fontSize: '0.875rem',
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background = 'rgba(255, 255, 255, 0.1)'
+                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+                                    e.target.style.transform = 'translateX(4px)'
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background = 'rgba(255, 255, 255, 0.05)'
+                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'
+                                    e.target.style.transform = 'translateX(0)'
+                                }}
+                            >
+                                {question}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

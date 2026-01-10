@@ -14,6 +14,7 @@ class LLMProvider(str, Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     HUGGINGFACE_LOCAL = "huggingface_local"
+    HUGGINGFACE_API = "huggingface_api"
     DATABRICKS = "databricks"
 
 
@@ -53,6 +54,7 @@ class QueryResponse(BaseModel):
     query: str = Field(..., description="Original query")
     provider: LLMProvider = Field(..., description="LLM provider used")
     processing_time_ms: Optional[float] = Field(None, description="Total processing time in milliseconds")
+    follow_up_questions: Optional[List[str]] = Field(None, description="AI-generated follow-up questions")
 
     class Config:
         json_schema_extra = {
@@ -130,3 +132,32 @@ class StreamChunk(BaseModel):
     content: Optional[str] = Field(None, description="Token content for 'token' type")
     source: Optional[SourceDocument] = Field(None, description="Source for 'source' type")
     error: Optional[str] = Field(None, description="Error message for 'error' type")
+
+
+# ============= Analysis Endpoint =============
+
+class AnalysisRequest(BaseModel):
+    """Request model for the /analyze endpoint."""
+    text: str = Field(..., description="Text to analyze")
+    provider: LLMProvider = Field(
+        default=LLMProvider.HUGGINGFACE_API,
+        description="LLM provider to use for analysis"
+    )
+
+
+class AnalysisResponse(BaseModel):
+    """Response model for the /analyze endpoint."""
+    summary: str = Field(..., description="AI-generated summary")
+    tags: List[str] = Field(default_factory=list, description="Extracted topics/tags")
+    complexity: Optional[str] = Field(None, description="Estimated complexity (beginner/intermediate/advanced)")
+    processing_time_ms: Optional[float] = Field(None, description="Total processing time in milliseconds")
+
+
+# ============= AI Status Endpoint =============
+
+class AIStatusResponse(BaseModel):
+    """Response model for the /ai-status endpoint."""
+    provider: LLMProvider = Field(..., description="Current LLM provider")
+    status: str = Field(..., description="Connection status: 'connected', 'degraded', 'disconnected'")
+    model: Optional[str] = Field(None, description="Model name/version")
+    details: Optional[str] = Field(None, description="Additional status details")

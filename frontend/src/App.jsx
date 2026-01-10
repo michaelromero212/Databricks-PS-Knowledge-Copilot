@@ -4,6 +4,7 @@ import { checkHealth } from './api/ragService'
 import ChatInterface from './components/ChatInterface'
 import SourceCards from './components/SourceCards'
 import Sidebar from './components/Sidebar'
+import AIConnectionStatus from './components/AIConnectionStatus'
 
 function App() {
     const { query, isLoading, error, result, history } = useRAG()
@@ -41,6 +42,7 @@ function App() {
                         </div>
                     </div>
                     <div className="header-status">
+                        <AIConnectionStatus provider="huggingface_api" />
                         <span className={`status-dot ${isHealthy === false ? 'offline' : ''}`}
                             style={{ backgroundColor: isHealthy === false ? '#DC2626' : '#00A972' }} />
                         <span>{isHealthy === null ? 'Checking...' : isHealthy ? 'Online' : 'Offline'}</span>
@@ -55,6 +57,7 @@ function App() {
                     onQuery={handleQuery}
                     isLoading={isLoading}
                     error={error}
+                    followUpQuestions={result?.follow_up_questions}
                 />
 
                 {/* Answer Display */}
@@ -79,7 +82,7 @@ function App() {
 
                         {/* Sources */}
                         {result.sources && result.sources.length > 0 && (
-                            <SourceCards sources={result.sources} />
+                            <SourceCards sources={result.sources} provider={result.provider} />
                         )}
                     </div>
                 )}
