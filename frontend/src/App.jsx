@@ -42,7 +42,7 @@ function App() {
                         </div>
                     </div>
                     <div className="header-status">
-                        <AIConnectionStatus provider="huggingface_api" />
+                        <AIConnectionStatus provider="huggingface_local" />
                         <span className={`status-dot ${isHealthy === false ? 'offline' : ''}`}
                             style={{ backgroundColor: isHealthy === false ? '#DC2626' : '#00A972' }} />
                         <span>{isHealthy === null ? 'Checking...' : isHealthy ? 'Online' : 'Offline'}</span>

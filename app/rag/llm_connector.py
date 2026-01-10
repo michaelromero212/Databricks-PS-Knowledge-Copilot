@@ -19,7 +19,7 @@ class LLMConfig:
     OPENAI_MODEL = "gpt-4o-mini"  # Cost-effective default
     ANTHROPIC_MODEL = "claude-3-haiku-20240307"
     DATABRICKS_MODEL = "databricks-dbrx-instruct"  # Free tier available
-    HUGGINGFACE_API_MODEL = "meta-llama/Llama-3.2-3B-Instruct"  # Fast and efficient
+    HUGGINGFACE_API_MODEL = "google/flan-t5-base"  # Publicly available, fast
     
     # Fallback models for Databricks
     DATABRICKS_FALLBACK_MODELS = [
@@ -166,7 +166,7 @@ SOURCES:
             import requests
             import json
             
-            api_url = f"https://api-inference.huggingface.co/models/{LLMConfig.HUGGINGFACE_API_MODEL}"
+            api_url = f"https://router.huggingface.co/models/{LLMConfig.HUGGINGFACE_API_MODEL}"
             headers = {
                 "Authorization": f"Bearer {self.huggingface_api_key}",
                 "Content-Type": "application/json"

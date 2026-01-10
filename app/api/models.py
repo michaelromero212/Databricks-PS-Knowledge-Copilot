@@ -22,7 +22,12 @@ class LLMProvider(str, Enum):
 
 class QueryRequest(BaseModel):
     """Request model for the /query endpoint."""
-    query: str = Field(..., description="The question to ask the knowledge base")
+    query: str = Field(
+        ..., 
+        min_length=1,
+        max_length=500, 
+        description="The question to ask the knowledge base"
+    )
     k: int = Field(default=3, ge=1, le=10, description="Number of documents to retrieve")
     provider: LLMProvider = Field(
         default=LLMProvider.HUGGINGFACE_LOCAL, 
@@ -138,7 +143,12 @@ class StreamChunk(BaseModel):
 
 class AnalysisRequest(BaseModel):
     """Request model for the /analyze endpoint."""
-    text: str = Field(..., description="Text to analyze")
+    text: str = Field(
+        ..., 
+        min_length=10,
+        max_length=5000, 
+        description="Text to analyze"
+    )
     provider: LLMProvider = Field(
         default=LLMProvider.HUGGINGFACE_API,
         description="LLM provider to use for analysis"

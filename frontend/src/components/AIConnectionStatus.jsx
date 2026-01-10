@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
  * 
  * Displays the current AI provider connection status with visual indicators
  */
-function AIConnectionStatus({ provider = 'huggingface_api' }) {
+function AIConnectionStatus({ provider = 'huggingface_local' }) {
     const [status, setStatus] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -15,7 +15,7 @@ function AIConnectionStatus({ provider = 'huggingface_api' }) {
         setError(null)
 
         try {
-            const response = await fetch(`http://localhost:8000/api/ai-status?provider=${provider}`)
+            const response = await fetch(`/api/ai-status?provider=${provider}`)
 
             if (!response.ok) {
                 throw new Error('Failed to fetch AI status')

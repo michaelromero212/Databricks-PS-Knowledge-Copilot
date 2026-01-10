@@ -18,6 +18,11 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -39,6 +44,20 @@ from app.vectorstore.chroma_client import ChromaClient
 # Global instances (lazy-loaded)
 _retriever: Optional[Retriever] = None
 _llm_connectors: dict = {}
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+
+
+# Security Headers Middleware
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
 
 
 def get_retriever() -> Retriever:
@@ -78,6 +97,13 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
+# Add rate limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Add security headers middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
 # Configure CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
@@ -88,8 +114,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],  # Only needed methods
+    allow_headers=["Content-Type", "Authorization"],  # Specific headers
 )
 
 
@@ -150,7 +176,8 @@ async def health_check():
 
 
 @app.post("/api/query", response_model=QueryResponse, tags=["RAG"])
-async def query_knowledge_base(request: QueryRequest):
+@limiter.limit("20/minute")  # Rate limit: 20 requests per minute
+async def query_knowledge_base(request: Request, query_request: QueryRequest):
     """
     Query the knowledge base and get an AI-generated answer.
     
@@ -164,16 +191,16 @@ async def query_knowledge_base(request: QueryRequest):
     try:
         # 1. Retrieve relevant documents
         retriever = get_retriever()
-        docs = retriever.retrieve(request.query, k=request.k)
+        docs = retriever.retrieve(query_request.query, k=query_request.k)
         
         # 2. Generate answer
         if docs:
-            llm = get_llm(request.provider.value)
-            answer = llm.generate_answer(request.query, docs)
+            llm = get_llm(query_request.provider.value)
+            answer = llm.generate_answer(query_request.query, docs)
             
             # Generate follow-up questions
             try:
-                follow_up_questions = llm.generate_follow_up_questions(request.query, answer)
+                follow_up_questions = llm.generate_follow_up_questions(query_request.query, answer)
             except Exception as e:
                 print(f"Error generating follow-up questions: {e}")
                 follow_up_questions = []
@@ -197,8 +224,8 @@ async def query_knowledge_base(request: QueryRequest):
         return QueryResponse(
             answer=answer,
             sources=sources,
-            query=request.query,
-            provider=request.provider,
+            query=query_request.query,
+            provider=query_request.provider,
             processing_time_ms=round(processing_time, 2),
             follow_up_questions=follow_up_questions if follow_up_questions else None
         )
@@ -297,7 +324,8 @@ async def get_stats():
 
 
 @app.post("/api/analyze", response_model=AnalysisResponse, tags=["AI"])
-async def analyze_document(request: AnalysisRequest):
+@limiter.limit("10/minute")  # Rate limit: 10 requests per minute
+async def analyze_document(request: Request, analysis_request: AnalysisRequest):
     """
     Analyze a document using AI to generate a summary, tags, and complexity rating.
     
@@ -309,8 +337,8 @@ async def analyze_document(request: AnalysisRequest):
     start_time = time.time()
     
     try:
-        llm = get_llm(request.provider.value)
-        analysis = llm.analyze_document(request.text)
+        llm = get_llm(analysis_request.provider.value)
+        analysis = llm.analyze_document(analysis_request.text)
         
         processing_time = (time.time() - start_time) * 1000
         
