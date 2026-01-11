@@ -5,13 +5,20 @@ import { useState } from 'react'
  * 
  * Provides the query input form with loading, error states, and follow-up questions
  */
-function ChatInterface({ onQuery, isLoading, error, followUpQuestions }) {
-    const [inputValue, setInputValue] = useState('')
-
+function ChatInterface({
+    onQuery,
+    isLoading,
+    error,
+    followUpQuestions,
+    queryInput,
+    setQueryInput,
+    showNewQuestionButton,
+    onNewQuestion
+}) {
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (inputValue.trim() && !isLoading) {
-            onQuery(inputValue.trim())
+        if (queryInput && queryInput.trim() && !isLoading) {
+            onQuery(queryInput.trim())
         }
     }
 
@@ -23,7 +30,7 @@ function ChatInterface({ onQuery, isLoading, error, followUpQuestions }) {
     }
 
     const handleFollowUpClick = (question) => {
-        setInputValue(question)
+        setQueryInput(question)
         onQuery(question)
     }
 
@@ -31,36 +38,75 @@ function ChatInterface({ onQuery, isLoading, error, followUpQuestions }) {
         <div className="query-card">
             <h2>Ask a Question</h2>
             <form className="query-form" onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    className="query-input"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="e.g., How do I optimize MERGE performance?"
-                    disabled={isLoading}
-                    aria-label="Enter your question"
-                />
-                <button
-                    type="submit"
-                    className={`query-button ${isLoading ? 'loading' : ''}`}
-                    disabled={isLoading || !inputValue.trim()}
-                >
-                    {isLoading ? (
-                        <>
-                            <span className="loading-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-                            Thinking...
-                        </>
-                    ) : (
-                        <>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
+                    <input
+                        type="text"
+                        className="query-input"
+                        value={queryInput || ''}
+                        onChange={(e) => setQueryInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="e.g., How do I optimize MERGE performance?"
+                        disabled={isLoading}
+                        aria-label="Enter your question"
+                        style={{ flex: 1 }}
+                    />
+                    <button
+                        type="submit"
+                        className={`query-button ${isLoading ? 'loading' : ''}`}
+                        disabled={isLoading || !queryInput || !queryInput.trim()}
+                    >
+                        {isLoading ? (
+                            <>
+                                <span className="loading-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                                Thinking...
+                            </>
+                        ) : (
+                            <>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                Ask
+                            </>
+                        )}
+                    </button>
+
+                    {showNewQuestionButton && !isLoading && (
+                        <button
+                            type="button"
+                            onClick={onNewQuestion}
+                            className="new-question-button"
+                            style={{
+                                padding: '0 1.25rem',
+                                borderRadius: '8px',
+                                border: '1.5px solid #d1d5db',
+                                background: '#f9fafb',
+                                color: '#374151',
+                                fontSize: '0.9375rem',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                whiteSpace: 'nowrap'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.background = '#e5e7eb'
+                                e.target.style.borderColor = '#9ca3af'
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = '#f9fafb'
+                                e.target.style.borderColor = '#d1d5db'
+                            }}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 5v14M5 12h14" />
                             </svg>
-                            Ask
-                        </>
+                            New
+                        </button>
                     )}
-                </button>
+                </div>
             </form>
 
             {error && (

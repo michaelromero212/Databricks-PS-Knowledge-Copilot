@@ -10,6 +10,7 @@ function App() {
     const { query, isLoading, error, result, history } = useRAG()
     const [isHealthy, setIsHealthy] = useState(null)
     const [stats, setStats] = useState(null)
+    const [queryInput, setQueryInput] = useState('')
 
     // Check API health on mount
     useEffect(() => {
@@ -22,7 +23,16 @@ function App() {
     }, [])
 
     const handleQuery = async (queryText) => {
+        setQueryInput(queryText)
         await query(queryText)
+    }
+
+    const handleNewQuestion = () => {
+        setQueryInput('')
+    }
+
+    const handleQuickActionSelect = (question) => {
+        setQueryInput(question)
     }
 
     return (
@@ -58,6 +68,10 @@ function App() {
                     isLoading={isLoading}
                     error={error}
                     followUpQuestions={result?.follow_up_questions}
+                    queryInput={queryInput}
+                    setQueryInput={setQueryInput}
+                    showNewQuestionButton={!!result}
+                    onNewQuestion={handleNewQuestion}
                 />
 
                 {/* Answer Display */}
@@ -96,7 +110,7 @@ function App() {
                         <h3>Ask a Question</h3>
                         <p>Enter a question about Databricks best practices, architecture, or optimization.</p>
 
-                        <QuickActions onSelect={handleQuery} />
+                        <QuickActions onSelect={handleQuickActionSelect} />
                     </div>
                 )}
 
