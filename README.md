@@ -5,30 +5,30 @@ An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) t
 ## 📸 Screenshots
 
 ### Main Interface
-The clean, modern interface allows consultants to quickly ask questions or select from common example queries. The header shows real-time API connection status.
+The modern interface shows real-time AI connection status (Huggingface Local model), backend health monitoring, and quick-action example questions to get started instantly.
 
 ![Main Interface](docs/images/main_interface.png)
 
 ---
 
-### Photon Engine Query
-Ask about when to recommend Photon for optimal performance. The answer includes detailed recommendations and cites source documents.
+### Smart Query with AI Follow-ups
+Ask any question and receive AI-generated answers with automatic follow-up questions. The "New" button lets you quickly start another query while preserving your context.
 
-![Photon Query](docs/images/photon_query.png)
-
----
-
-### Unity Catalog Best Practices
-Get authoritative guidance on Unity Catalog architecture, namespace structure, and governance patterns for enterprise deployments.
-
-![Unity Catalog Query](docs/images/unity_catalog_query.png)
+![Query with Follow-ups](docs/images/query_with_followups.png)
 
 ---
 
-### Auto Loader Schema Evolution
-Understand how Auto Loader handles schema changes dynamically, with specific configuration recommendations from the knowledge base.
+### AI Document Analysis
+Click "Analyze with AI" on any source to get instant summaries, relevant topic tags, and complexity ratings—helping you quickly assess document relevance.
 
-![Auto Loader Query](docs/images/auto_loader_query.png)
+![AI Document Analysis](docs/images/ai_analysis.png)
+
+---
+
+### Full Interface Overview
+The complete view shows the seamless integration of AI-powered answers, intelligent source citations, and interactive follow-up questions in one clean interface.
+
+![Full Interface](docs/images/full_interface.png)
 
 ## 🚀 Features
 
