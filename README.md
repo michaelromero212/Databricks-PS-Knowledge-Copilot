@@ -32,12 +32,29 @@ Understand how Auto Loader handles schema changes dynamically, with specific con
 
 ## 🚀 Features
 
+### Core Functionality
 -   **RAG Architecture**: Retrieves relevant context from ingested docs before answering.
 -   **Local AI**: Uses a free, local Hugging Face model (`LaMini-Flan-T5`) for privacy and cost-efficiency.
 -   **Vector Search**: Powered by ChromaDB (local) or Databricks Vector Search (cloud).
 -   **Modern React UI**: Clean, responsive interface with real-time status indicators and example queries.
 -   **FastAPI Backend**: High-performance async API with automatic documentation.
 -   **Source Citations**: Every answer includes references to the source documents with relevance scores.
+
+### 🆕 New AI-Powered Features
+-   **💬 Smart Follow-up Questions**: AI automatically generates 3 contextual follow-up questions after each query
+-   **📝 AI Document Analysis**: Click "Analyze with AI" on any source to get:
+    - Concise 2-3 sentence summaries
+    - Relevant topic tags
+    - Complexity rating (beginner/intermediate/advanced)
+-   **🔌 AI Connection Status**: Real-time monitoring of LLM provider health with visual indicators
+-   **🎯 Interactive Question Chips**: Click any follow-up question to instantly trigger a new query
+
+### 🔒 Security & Best Practices
+-   **Input Validation**: Max length limits (500 chars for queries, 5000 for analysis)
+-   **Rate Limiting**: 20 requests/min for queries, 10/min for analysis to prevent abuse
+-   **Security Headers**: X-Frame-Options, X-Content-Type-Options, XSS Protection
+-   **Strict CORS**: Limited to specific origins, methods, and headers
+-   **Dependency Pinning**: All package versions locked for reproducible builds
 
 ## 🛠️ Tech Stack
 
@@ -62,14 +79,24 @@ Understand how Auto Loader handles schema changes dynamically, with specific con
     pip install -r requirements.txt
     ```
 
-3.  **Install Frontend Dependencies**:
+3.  **Configure Environment** (Optional):
+    ```bash
+    # Copy environment example
+    cp .env.example .env
+    
+    # Edit .env to add API keys (optional - local model works without keys)
+    # HUGGINGFACE_API_KEY=your_key_here
+    # OPENAI_API_KEY=your_key_here (optional)
+    ```
+
+4.  **Install Frontend Dependencies**:
     ```bash
     cd frontend
     npm install
     cd ..
     ```
 
-4.  **Run the Backend** (Terminal 1):
+5.  **Run the Backend** (Terminal 1):
     ```bash
     source venv/bin/activate
     uvicorn app.api.main:app --reload --port 8000
@@ -77,7 +104,7 @@ Understand how Auto Loader handles schema changes dynamically, with specific con
     
     The API will be available at `http://localhost:8000` with docs at `http://localhost:8000/api/docs`.
 
-5.  **Run the Frontend** (Terminal 2):
+6.  **Run the Frontend** (Terminal 2):
     ```bash
     cd frontend
     npm run dev
@@ -120,3 +147,39 @@ To add new knowledge:
 3.  The system automatically chunks, embeds, and indexes the new content.
 
 > **Tip**: Check `http://localhost:8000/api/stats` to see the current document count in the knowledge base.
+
+## 🔐 Security
+
+This project implements enterprise-grade security practices:
+
+- **API Rate Limiting**: Prevents abuse with configurable limits per endpoint
+- **Input Validation**: Automatic validation of all user inputs with Pydantic
+- **Security Headers**: OWASP-recommended headers to prevent common web vulnerabilities
+- **CORS Protection**: Strict cross-origin policies for production deployments
+- **Environment Isolation**: Sensitive credentials via environment variables only
+
+> ⚠️ **Important**: Never commit `.env` files. Always rotate API keys if accidentally exposed.
+
+## 📚 API Endpoints
+
+### Core Endpoints
+- `POST /api/query` - Ask a question (rate limit: 20/min)
+- `POST /api/analyze` - Analyze document text (rate limit: 10/min)  
+- `GET /api/ai-status` - Check LLM connection status
+- `POST /api/ingest` - Add documents to knowledge base
+- `GET /api/health` - System health check
+- `GET /api/stats` - Knowledge base statistics
+
+Full API documentation available at `http://localhost:8000/api/docs`
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+source venv/bin/activate
+python tests/test_llm_features.py
+```
+
+## 📝 License
+
+Internal tool for Databricks Professional Services teams.
