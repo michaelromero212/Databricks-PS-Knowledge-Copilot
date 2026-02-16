@@ -5,28 +5,28 @@ An internal AI "Knowledge Assistant" for Databricks Professional Services (PS) t
 ## 📸 Screenshots
 
 ### Main Interface
-The modern interface shows real-time AI connection status (Huggingface Local model), backend health monitoring, and quick-action example questions to get started instantly.
+The clean, modern interface features a consolidated AI connection status pill in the header showing the active LLM provider (Huggingface Local / LaMini-Flan-T5-248M), a search input, and quick-action example questions to get started instantly.
 
 ![Main Interface](docs/images/main_interface.png)
 
 ---
 
-### Smart Query with AI Follow-ups
-Ask any question and receive AI-generated answers with automatic follow-up questions. The "New" button lets you quickly start another query while preserving your context.
+### Smart Query with RAG-Powered Answers
+Ask any question and receive AI-generated answers grounded in your knowledge base. Answers are rendered with full markdown formatting, and the system retrieves the most relevant source chunks with relevance scores.
 
 ![Query with Follow-ups](docs/images/query_with_followups.png)
 
 ---
 
 ### AI Document Analysis
-Click "Analyze with AI" on any source to get instant summaries, relevant topic tags, and complexity ratings—helping you quickly assess document relevance.
+Click "Analyze with AI" on any retrieved source to get an instant summary, relevant topic tags, and a complexity rating (beginner/intermediate/advanced) — helping you quickly assess document relevance without reading the full text.
 
 ![AI Document Analysis](docs/images/ai_analysis.png)
 
 ---
 
-### Full Interface Overview
-The complete view shows the seamless integration of AI-powered answers, intelligent source citations, and interactive follow-up questions in one clean interface.
+### Full Interface with Source Citations
+The complete view shows AI-powered answers with intelligent source citations from 12 enterprise knowledge docs (Slack threads, Google Drive, Confluence, email digests), each linked to their original chunk and source file.
 
 ![Full Interface](docs/images/full_interface.png)
 

@@ -5,6 +5,8 @@ import ChatInterface from './components/ChatInterface'
 import SourceCards from './components/SourceCards'
 import Sidebar from './components/Sidebar'
 import AIConnectionStatus from './components/AIConnectionStatus'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 function App() {
     const { query, isLoading, error, result, history } = useRAG()
@@ -53,9 +55,6 @@ function App() {
                     </div>
                     <div className="header-status">
                         <AIConnectionStatus provider="huggingface_local" />
-                        <span className={`status-dot ${isHealthy === false ? 'offline' : ''}`}
-                            style={{ backgroundColor: isHealthy === false ? '#DC2626' : '#00A972' }} />
-                        <span>{isHealthy === null ? 'Checking...' : isHealthy ? 'Online' : 'Offline'}</span>
                     </div>
                 </div>
             </header>
@@ -84,7 +83,11 @@ function App() {
                             <h3>Answer</h3>
                         </div>
                         <div className="answer-content">
-                            <p className="answer-text">{result.answer}</p>
+                            <div className="answer-text markdown-body">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {result.answer}
+                                </ReactMarkdown>
+                            </div>
 
                             <div className="answer-meta">
                                 <span>Provider: {result.provider}</span>

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
  * 
  * Displays the current AI provider connection status with visual indicators
  */
-function AIConnectionStatus({ provider = 'huggingface_local' }) {
+function AIConnectionStatus({ provider = 'huggingface_local', onStatusChange }) {
     const [status, setStatus] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -23,8 +23,14 @@ function AIConnectionStatus({ provider = 'huggingface_local' }) {
 
             const data = await response.json()
             setStatus(data)
+            if (onStatusChange) {
+                onStatusChange(data)
+            }
         } catch (err) {
             setError(err.message)
+            if (onStatusChange) {
+                onStatusChange({ status: 'disconnected', provider, model: null, details: err.message })
+            }
         } finally {
             setLoading(false)
         }

@@ -81,6 +81,31 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown."""
     # Startup
     print("🚀 Starting Databricks PS Knowledge Copilot API...")
+    
+    # Pre-warm the LLM so it's ready for the first request
+    print("🔄 Pre-warming LLM connection...")
+    try:
+        llm = get_llm("huggingface_local")
+        connection_status = llm.check_connection()
+        status = connection_status.get("status", "unknown")
+        model = connection_status.get("model", "unknown")
+        details = connection_status.get("details", "")
+        if status == "connected":
+            print(f"✅ LLM connected: {model} — {details}")
+        else:
+            print(f"⚠️ LLM status: {status} — {model} — {details}")
+    except Exception as e:
+        print(f"❌ LLM pre-warm failed: {e}")
+    
+    # Pre-warm the retriever (loads embedder + vector store)
+    print("🔄 Pre-warming retriever...")
+    try:
+        retriever = get_retriever()
+        print(f"✅ Retriever ready (ChromaDB: {retriever.vector_store.collection.count()} docs)")
+    except Exception as e:
+        print(f"❌ Retriever pre-warm failed: {e}")
+    
+    print("🚀 API ready to serve requests!")
     yield
     # Shutdown
     print("👋 Shutting down API...")
@@ -353,7 +378,7 @@ async def analyze_document(request: Request, analysis_request: AnalysisRequest):
 
 
 @app.get("/api/ai-status", response_model=AIStatusResponse, tags=["AI"])
-async def get_ai_status(provider: str = "huggingface_api"):
+async def get_ai_status(provider: str = "huggingface_local"):
     """
     Check the connection status of an AI provider.
     
